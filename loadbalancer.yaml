@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    enviroment: prod
+    app: frontend
+  name: frontend-load-balancer
+spec:
+  selector:
+    app: frontend
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  loadBalancerIP: 34.70.240.53
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    enviroment: prod
+    app: admin
+  name: admin-load-balancer
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 3002
+      targetPort: 3002
+  selector:
+    app: admin
+  loadBalancerIP: 34.171.50.52
+---
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    enviroment: prd
+    app: backend
+  name: backend-load-balancer
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+  selector:
+    app: backend
+  loadBalancerIP: 34.66.145.253

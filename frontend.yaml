@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    enviroment: prod
+    app: frontend
+  name: frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - args:
+            - yarn
+            - dev
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /signin
+              port: 80
+              # httpHeaders:
+              #   - name: Accept
+              #     value: "*/*"
+            initialDelaySeconds: 60
+            periodSeconds: 200
+            timeoutSeconds: 60
+            successThreshold: 1
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /signin     
+              port: 80
+            periodSeconds: 200
+            initialDelaySeconds: 60
+            #periodSeconds: 20
+            timeoutSeconds: 60
+          env:
+            - name: VITE_REACT_APP_API_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: VITE_REACT_APP_API_URL
+                  name: frontend--env-prod
+            - name: VITE_REACT_APP_BASE_PATH
+              valueFrom:
+                configMapKeyRef:
+                  key: VITE_REACT_APP_BASE_PATH
+                  name: frontend--env-prod
+            - name: VITE_REACT_APP_ACCESS_TOKEN_MP
+              valueFrom:
+                configMapKeyRef:
+                  key: VITE_REACT_APP_ACCESS_TOKEN_MP
+                  name: frontend--env-prod
+            - name: VITE_REACT_APP_GETNET
+              valueFrom:
+                configMapKeyRef:
+                  key: VITE_REACT_APP_GETNET
+                  name: frontend--env-prod
+            - name: VITE_REACT_APP_SELLER_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: VITE_REACT_APP_SELLER_ID
+                  name: frontend--env-prod
+          image: us-central1-docker.pkg.dev/emprestame/docker-repo/frontend-prod-image
+          name: frontend
+          ports:
+            - name: frontend
+              containerPort: 80
+          resources: {}
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: ConfigMap
+data:
+  VITE_REACT_APP_API_URL: http://34.66.145.253:5000/api/v1
+  VITE_REACT_APP_BASE_PATH: /
+  VITE_REACT_APP_ACCESS_TOKEN_MP: TEST-58cc4643-ecec-4837-bfab-2745435b28f0
+  VITE_REACT_APP_GETNET: 'true'
+  VITE_REACT_APP_SELLER_ID: d40298ba-19d6-4d5d-b77e-66981f3c1469
+metadata:
+  labels:
+    enviroment: prod
+    app: frontend-frontend--env-prod
+  name: frontend--env-prod
